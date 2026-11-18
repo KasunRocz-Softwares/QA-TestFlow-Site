@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>QA TestFlow — Dependency-aware QA test management</title>
+  <meta name="description" content="QA TestFlow maps how your features depend on each other, so every change shows exactly what to retest. Live team test runs, release sign-offs, and a built-in QA assistant.">
+  <meta name="theme-color" content="#04050a">
+  <meta property="og:title" content="QA TestFlow — Test what changed. Know what it breaks.">
+  <meta property="og:description" content="Dependency-aware QA test management: live team test runs, release sign-offs and a built-in QA assistant.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://kasunrocz-softwares.github.io/QA-TestFlow-Site/">
+  <meta property="og:image" content="https://kasunrocz-softwares.github.io/QA-TestFlow-Site/og.png">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <script>
+    (function () {
+      var d = document.documentElement;
+      d.classList.add('js');
+      if (matchMedia('(prefers-reduced-motion: reduce)').matches) d.classList.add('rm');
+    })();
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css?v=1">
+  <script type="module" src="kr-hero.js?v=1"></script>
+  <script type="module" src="app.js?v=1"></script>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="progress" aria-hidden="true"></div>
+
+  <header class="nav" id="nav">
+    <a class="brand" href="#top" aria-label="QA TestFlow home">
+      <img src="icon.svg" alt="" width="28" height="28">
+      <span>QA TestFlow</span>
+    </a>
+    <nav class="nav-links" id="nav-links" aria-label="Primary">
+      <a href="#graph">Dependency map</a>
+      <a href="#runs">Test runs</a>
+      <a href="#releases">Releases</a>
+      <a href="#assistant">Assistant</a>
+      <a class="nav-org" href="https://kasunrocz-softwares.github.io/">← All projects</a>
+    </nav>
+    <div class="nav-end">
+      <a class="org" href="https://kasunrocz-softwares.github.io/">All projects</a>
+      <button class="menu-btn" type="button" aria-expanded="false" aria-controls="nav-links" aria-label="Open menu"><span></span><span></span></button>
+    </div>
+  </header>
+
+  <main id="main">
+    <!-- HERO -->
+    <section class="hero" id="top">
+      <canvas class="kr-planet" data-kind="graph" data-color="#7ef29d" aria-hidden="true"></canvas>
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="dot" aria-hidden="true"></span>Dependency-aware QA test management</p>
+        <h1 class="display">Test what changed.<br><span class="accent-text">Know what it breaks.</span></h1>
+        <p class="lede">QA TestFlow maps how your features depend on each other. Change one, and it shows every feature downstream that needs retesting, then runs that test pass with your whole team in one live session.</p>
+        <div class="cta-row">
+          <a class="btn btn-primary" href="#graph">Try the dependency map <span aria-hidden="true">→</span></a>
+          <a class="btn btn-ghost" href="#runs">See a live test run</a>
+        </div>
+        <dl class="stats">
+          <div><dt>Test categories</dt><dd>6</dd></div>
+          <div><dt>Sign-off stages</dt><dd>6</dd></div>
+          <div><dt>User roles</dt><dd>4</dd></div>
+        </dl>
+      </div>
+
+      <aside class="session" aria-label="Illustrative live test run">
+        <div class="session-head">
+          <span class="mono">Checkout · regression run</span>
+          <span class="live"><i aria-hidden="true"></i>Live</span>
+        </div>
+        <div class="session-who" aria-hidden="true"><b style="--c:#7ef29d">AK</b><b style="--c:#5cc8ff">NS</b><b style="--c:#b197fc">RJ</b><span>3 testers in this run</span></div>
+        <ul class="session-cases" id="session-cases"></ul>
+        <div class="session-sum" id="session-sum" aria-live="off"></div>
+        <p class="session-note">Illustrative data</p>
+      </aside>
+    </section>
+
+    <!-- HIERARCHY -->
+    <section class="section" id="model">
+      <div class="section-head">
+        <p class="kicker">// How it's organised</p>
+        <h2 class="h2">Every test case knows exactly what it covers.</h2>
+        <p class="body">Projects break down into modules, features and functions, and test cases hang off the function they check. That structure is what lets QA TestFlow work out what a change affects.</p>
+      </div>
+      <ol class="chain">
+        <li class="reveal"><span class="mono">01</span><b>Project</b><small>Your product, its team and its releases</small></li>
+        <li class="reveal" style="--d:.06s"><span class="mono">02</span><b>Module</b><small>A major area, like Checkout</small></li>
+        <li class="reveal" style="--d:.12s"><span class="mono">03</span><b>Feature</b><small>Something users do, like Apply coupon</small></li>
+        <li class="reveal" style="--d:.18s"><span class="mono">04</span><b>Function</b><small>The behaviour being checked</small></li>
+        <li class="reveal" style="--d:.24s"><span class="mono">05</span><b>Test case</b><small>Positive, negative, boundary, UI/UX, performance, responsive</small></li>
+      </ol>
+    </section>
+
+    <!-- DEPENDENCY MAP DEMO -->
+    <section class="section" id="graph">
+      <div class="section-head">
+        <p class="kicker">// Dependency map</p>
+        <h2 class="h2">Pick a feature. See everything it touches.</h2>
+        <p class="body">Features link to the features that rely on them, and the map refuses links that would loop. When something changes, QA TestFlow walks the map so nothing downstream goes untested. Try it on an example shop.</p>
+      </div>
+      <div class="demo reveal">
+        <div class="demo-map">
+          <svg viewBox="0 0 900 420" id="dep-svg" role="group" aria-label="Example dependency map. Choose a feature to see what depends on it."></svg>
+        </div>
+        <div class="demo-side">
+          <span class="mono">Changed feature</span>
+          <p class="demo-title" id="dep-title">Choose a feature on the map</p>
+          <p class="demo-sub" id="dep-sub">Its dependents light up, all the way down.</p>
+          <div class="demo-nums">
+            <div><b id="dep-n">0</b><small>features to retest</small></div>
+            <div><b id="dep-depth">0</b><small>levels deep</small></div>
+          </div>
+          <ul class="demo-list" id="dep-list"></ul>
+          <p class="session-note">Example project</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- RUNS -->
+    <section class="section split" id="runs">
+      <div>
+        <p class="kicker">// Test runs</p>
+        <h2 class="h2">One test run. The whole team, live.</h2>
+        <p class="body">Create a task and QA TestFlow pulls in the affected features and their test cases automatically. Everyone works the same session at once: each result syncs to the others the moment it's marked, and the pass, fail and pending counts update for everybody.</p>
+        <ul class="ticks">
+          <li><b>Mark each case</b> Pass, Fail, Skip or N/A</li>
+          <li><b>Attach screenshots</b> as proof on any result</li>
+          <li><b>Checklists per task</b> for the steps that aren't test cases</li>
+          <li><b>Link to ClickUp</b>: task IDs are checked against your ClickUp workspace</li>
+        </ul>
+      </div>
+      <div class="tally reveal" aria-hidden="true">
+        <div class="tally-ring" id="tally-ring"><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="50" class="t-bg"/><circle cx="60" cy="60" r="50" class="t-pass"/><circle cx="60" cy="60" r="50" class="t-fail"/></svg><div><b id="tally-pct">0%</b><small>passed</small></div></div>
+        <ul class="tally-legend">
+          <li><i class="pass"></i>Pass <b id="tl-pass">0</b></li>
+          <li><i class="fail"></i>Fail <b id="tl-fail">0</b></li>
+          <li><i class="pend"></i>Pending <b id="tl-pend">0</b></li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- RELEASES -->
+    <section class="section" id="releases">
+      <div class="section-head">
+        <p class="kicker">// Releases</p>
+        <h2 class="h2">Nothing ships until everyone signs.</h2>
+        <p class="body">Group tasks into a release and test them in one combined session. Progress rolls up to the release, which then moves through a sign-off chain. Any stage can block it.</p>
+      </div>
+      <ol class="stages reveal" id="stages">
+        <li>Draft</li><li>In testing</li><li>QA</li><li>Dev lead</li><li>BA</li><li>Team lead</li><li>PM</li><li class="ship">Released</li>
+      </ol>
+      <p class="stages-note"><span class="blocked">Blocked</span> can be set at any stage, and every move is recorded in the release log.</p>
+    </section>
+
+    <!-- ASSISTANT -->
+    <section class="section" id="assistant">
+      <div class="section-head">
+        <p class="kicker">// Built-in assistant</p>
+        <h2 class="h2">An assistant that already knows your test map.</h2>
+        <p class="body">It works from your own features, dependencies and results. It's rule-based and runs inside QA TestFlow, so your data doesn't go to an outside AI service.</p>
+      </div>
+      <div class="bento">
+        <article class="tile reveal"><span class="mono">Write</span><h3>Draft test cases</h3><p>Suggests cases for a function across every test category, ready to review.</p></article>
+        <article class="tile reveal" style="--d:.05s"><span class="mono">Find</span><h3>Coverage gaps</h3><p>Shows the features and categories that have no tests yet, and drafts cases to fill them.</p></article>
+        <article class="tile reveal" style="--d:.1s"><span class="mono">Predict</span><h3>Regression impact</h3><p>Estimates what a set of changed features puts at risk before you plan the run.</p></article>
+        <article class="tile reveal" style="--d:.15s"><span class="mono">Map</span><h3>Discover dependencies</h3><p>Proposes links between features you haven't connected yet. You approve before they apply.</p></article>
+        <article class="tile reveal" style="--d:.2s"><span class="mono">Repair</span><h3>Heal outdated tests</h3><p>Rewrites test cases when the function they check has changed.</p></article>
+        <article class="tile reveal" style="--d:.25s"><span class="mono">Decide</span><h3>Release readiness</h3><p>Sums up results and open failures into a go or no-go view for a release.</p></article>
+        <article class="tile reveal" style="--d:.3s"><span class="mono">Report</span><h3>Bug reports</h3><p>Turns a failed case into a drafted bug report with the steps filled in.</p></article>
+        <article class="tile reveal" style="--d:.35s"><span class="mono">Plan</span><h3>Tasks &amp; standups</h3><p>Turns pasted notes into tasks, summarises a task, and writes the daily standup.</p></article>
+      </div>
+    </section>
+
+    <!-- WORK + ACCESS -->
+    <section class="section duo">
+      <article class="panel reveal">
+        <p class="kicker">// Work management</p>
+        <h3 class="h3">Plan the work around the testing.</h3>
+        <p>Tasks, bugs, stories, epics and subtasks on sprints and milestones, with the extras teams expect.</p>
+        <ul class="chips"><li>Sprints</li><li>Milestones</li><li>Custom fields</li><li>Automation rules</li><li>Time tracking</li><li>Templates</li><li>Watchers</li><li>Comments &amp; files</li><li>Linked tasks</li><li>Tags</li></ul>
+      </article>
+      <article class="panel reveal" style="--d:.08s">
+        <p class="kicker">// Access &amp; security</p>
+        <h3 class="h3">The right people, provably.</h3>
+        <p>Project-level roles, two-factor sign-in and an audit trail of every change.</p>
+        <ul class="chips"><li>Viewer</li><li>Tester</li><li>Lead</li><li>Admin</li><li>Two-factor sign-in</li><li>Trusted devices</li><li>Email verification</li><li>Audit log</li></ul>
+      </article>
+    </section>
+
+    <section class="section stack-band">
+      <span class="mono">Built with</span>
+      <ul class="chips">
+        <li>NestJS</li><li>Next.js 14</li><li>Prisma</li><li>PostgreSQL 16</li><li>Redis 7</li><li>WebSockets</li><li>Zod</li><li>Turborepo</li><li>Docker</li>
+      </ul>
+    </section>
+
+    <section class="cta-band reveal">
+      <h2 class="h2">Stop guessing what to retest.</h2>
+      <p class="body">QA TestFlow is a KasunRocz Softwares project. Its source code is private.</p>
+      <div class="cta-row center">
+        <a class="btn btn-primary btn-lg" href="#graph">Try the dependency map</a>
+        <a class="btn btn-ghost btn-lg" href="https://kasunrocz-softwares.github.io/">More projects</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <span>QA TestFlow · a <a href="https://kasunrocz-softwares.github.io/">KasunRocz Softwares</a> project</span>
+    <a href="https://kasunrocz-softwares.github.io/">← All projects</a>
+  </footer>
+</body>
+</html>
