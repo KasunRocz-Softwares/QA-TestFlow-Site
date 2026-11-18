@@ -2,7 +2,7 @@
 
 Product site for **QA TestFlow**, a dependency-aware QA test management platform by KasunRocz Softwares.
 
-**Live:** https://kasunrocz-softwares.github.io/QA-TestFlow-Site/
+**Live:** https://qulaxy.com/QA-TestFlow-Site/
 
 The app's source code is private; this repository holds only the public website.
 
@@ -11,7 +11,7 @@ The app's source code is private; this repository holds only the public website.
 Plain static files, no build step:
 
 - `index.html` — the page
-- `styles.css` — styles, in the [KasunRocz Softwares](https://kasunrocz-softwares.github.io/) visual family (green accent)
+- `styles.css` — styles, in the [KasunRocz Softwares](https://qulaxy.com/) visual family (green accent)
 - `app.js` — the live-run mock, the interactive dependency map, the tally ring and the release sign-off animation
 - `kr-hero.js` — the 3D dependency-graph planet behind the hero (Three.js from jsDelivr; the page works without it)
 - `icon.svg`, `og.png` — tab icon and link-preview image
