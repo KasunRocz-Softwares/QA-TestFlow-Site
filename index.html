@@ -23,9 +23,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600&family=Manrope:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=1">
+  <link rel="stylesheet" href="styles.css?v=3">
   <script type="module" src="kr-hero.js?v=1"></script>
-  <script type="module" src="app.js?v=1"></script>
+  <script type="module" src="app.js?v=2"></script>
 </head>
 <body>
   <a class="skip" href="#main">Skip to content</a>
@@ -41,6 +41,7 @@
       <a href="#runs">Test runs</a>
       <a href="#releases">Releases</a>
       <a href="#assistant">Assistant</a>
+      <a href="#setup">Setup</a>
       <a class="nav-org" href="https://kasunrocz-softwares.github.io/">← All projects</a>
     </nav>
     <div class="nav-end">
@@ -59,7 +60,7 @@
         <p class="lede">QA TestFlow maps how your features depend on each other. Change one, and it shows every feature downstream that needs retesting, then runs that test pass with your whole team in one live session.</p>
         <div class="cta-row">
           <a class="btn btn-primary" href="#graph">Try the dependency map <span aria-hidden="true">→</span></a>
-          <a class="btn btn-ghost" href="#runs">See a live test run</a>
+          <a class="btn btn-ghost" href="#setup">Run it on your server</a>
         </div>
         <dl class="stats">
           <div><dt>Test categories</dt><dd>6</dd></div>
@@ -192,6 +193,87 @@
       </article>
     </section>
 
+    <!-- SETUP -->
+    <section class="section" id="setup">
+      <div class="section-head">
+        <p class="kicker">// Setup</p>
+        <h2 class="h2">Running on your own server in five minutes.</h2>
+        <p class="body">QA TestFlow ships as two Docker images. One compose file starts them with PostgreSQL, Redis and a proxy that serves everything from a single address.</p>
+      </div>
+
+      <div class="setup-grid">
+        <ol class="setup-steps">
+          <li class="reveal">
+            <span class="mono">01 · Before you start</span>
+            <p>Any Linux, macOS or Windows machine with <b>Docker</b> and <b>Docker Compose v2.23 or newer</b> (included in current Docker Desktop and Docker Engine).</p>
+          </li>
+          <li class="reveal">
+            <span class="mono">02 · Download the two files</span>
+            <div class="os-tabs" role="tablist" aria-label="Your system">
+              <button type="button" role="tab" aria-selected="true" aria-controls="dl-unix" id="t-unix">Linux / macOS</button>
+              <button type="button" role="tab" aria-selected="false" aria-controls="dl-win" id="t-win" tabindex="-1">Windows</button>
+            </div>
+            <div class="code" role="tabpanel" id="dl-unix" aria-labelledby="t-unix"><button class="copy" type="button">Copy</button><pre><code>mkdir qa-testflow &amp;&amp; cd qa-testflow
+curl -fsSLO https://kasunrocz-softwares.github.io/QA-TestFlow-Site/setup/docker-compose.yml
+curl -fsSL -o .env https://kasunrocz-softwares.github.io/QA-TestFlow-Site/setup/env.example</code></pre></div>
+            <div class="code" role="tabpanel" id="dl-win" aria-labelledby="t-win" hidden><button class="copy" type="button">Copy</button><pre><code>mkdir qa-testflow; cd qa-testflow
+Invoke-WebRequest https://kasunrocz-softwares.github.io/QA-TestFlow-Site/setup/docker-compose.yml -OutFile docker-compose.yml
+Invoke-WebRequest https://kasunrocz-softwares.github.io/QA-TestFlow-Site/setup/env.example -OutFile .env</code></pre></div>
+          </li>
+          <li class="reveal">
+            <span class="mono">03 · Set the two secrets</span>
+            <p>Open <code>.env</code> and fill in <code>POSTGRES_PASSWORD</code> and <code>JWT_SECRET</code> with long random values. On Linux this does it for you:</p>
+            <div class="code"><button class="copy" type="button">Copy</button><pre><code>sed -i "s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=$(openssl rand -hex 16)|" .env
+sed -i "s|^JWT_SECRET=.*|JWT_SECRET=$(openssl rand -hex 32)|" .env</code></pre></div>
+          </li>
+          <li class="reveal">
+            <span class="mono">04 · Start it</span>
+            <div class="code"><button class="copy" type="button">Copy</button><pre><code>docker compose up -d</code></pre></div>
+            <p>Open <b>http://localhost:8080</b>. The first visit asks you to create the admin account. The first start takes a minute while the database is prepared.</p>
+          </li>
+        </ol>
+
+        <div class="files reveal">
+          <div class="file-tabs" role="tablist" aria-label="Setup files">
+            <button type="button" role="tab" aria-selected="true" aria-controls="f-compose" id="t-compose">docker-compose.yml</button>
+            <button type="button" role="tab" aria-selected="false" aria-controls="f-env" id="t-env" tabindex="-1">.env</button>
+          </div>
+          <div class="file" role="tabpanel" id="f-compose" aria-labelledby="t-compose">
+            <div class="file-bar"><a href="setup/docker-compose.yml" download>Download</a><button class="copy" type="button">Copy</button></div>
+            <pre><code data-src="setup/docker-compose.yml">Loading… <a href="setup/docker-compose.yml">open docker-compose.yml</a></code></pre>
+          </div>
+          <div class="file" role="tabpanel" id="f-env" aria-labelledby="t-env" hidden>
+            <div class="file-bar"><a href="setup/env.example" download=".env">Download</a><button class="copy" type="button">Copy</button></div>
+            <pre><code data-src="setup/env.example">Loading… <a href="setup/env.example">open env.example</a></code></pre>
+          </div>
+        </div>
+      </div>
+
+      <div class="setup-more">
+        <article class="panel reveal">
+          <p class="kicker">// Your own domain</p>
+          <p>Point a domain at the server, then set <code>SITE_ADDRESS=qa.example.com</code>, <code>HTTP_PORT=80</code>, <code>HTTPS_PORT=443</code> and <code>PUBLIC_URL=https://qa.example.com</code> in <code>.env</code>. The built-in Caddy proxy gets a free HTTPS certificate automatically.</p>
+        </article>
+        <article class="panel reveal" style="--d:.06s">
+          <p class="kicker">// Updates</p>
+          <div class="code"><button class="copy" type="button">Copy</button><pre><code>docker compose pull
+docker compose up -d</code></pre></div>
+          <p>Pin a version with <code>QA_TESTFLOW_VERSION</code> in <code>.env</code>.</p>
+        </article>
+        <article class="panel reveal" style="--d:.12s">
+          <p class="kicker">// Backups</p>
+          <div class="code"><button class="copy" type="button">Copy</button><pre><code>docker compose exec postgres \
+  pg_dump -U qatool qatool_db &gt; backup.sql</code></pre></div>
+          <p>Email and ClickUp are optional and set in <code>.env</code> or later in the app's Settings.</p>
+        </article>
+      </div>
+
+      <ul class="images reveal" aria-label="Published images">
+        <li><span class="mono">API image</span><code>ghcr.io/kasunrocz-softwares/qa-testflow-api</code></li>
+        <li><span class="mono">Web image</span><code>ghcr.io/kasunrocz-softwares/qa-testflow-web</code></li>
+      </ul>
+    </section>
+
     <section class="section stack-band">
       <span class="mono">Built with</span>
       <ul class="chips">
@@ -201,9 +283,9 @@
 
     <section class="cta-band reveal">
       <h2 class="h2">Stop guessing what to retest.</h2>
-      <p class="body">QA TestFlow is a KasunRocz Softwares project. Its source code is private.</p>
+      <p class="body">QA TestFlow is a KasunRocz Softwares project. The source code is private; the Docker images are public.</p>
       <div class="cta-row center">
-        <a class="btn btn-primary btn-lg" href="#graph">Try the dependency map</a>
+        <a class="btn btn-primary btn-lg" href="#setup">Set it up with Docker</a>
         <a class="btn btn-ghost btn-lg" href="https://kasunrocz-softwares.github.io/">More projects</a>
       </div>
     </section>

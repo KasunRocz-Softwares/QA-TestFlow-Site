@@ -1,0 +1,106 @@
+# QA TestFlow — self-hosted stack using the published images.
+#
+#   1. Put this file and .env (copied from env.example) in an empty folder.
+#   2. Fill in POSTGRES_PASSWORD and JWT_SECRET in .env.
+#   3. docker compose up -d
+#   4. Open http://localhost:8080 and create the first admin account.
+#
+# Needs Docker Compose v2.23 or newer (for the inline Caddy config below).
+name: qa-testflow
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-qatool_db}
+      POSTGRES_USER: ${POSTGRES_USER:-qatool}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U "$$POSTGRES_USER" -d "$$POSTGRES_DB"']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ['CMD', 'redis-cli', 'ping']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  api:
+    image: ghcr.io/kasunrocz-softwares/qa-testflow-api:${QA_TESTFLOW_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER:-qatool}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-qatool_db}?schema=public
+      REDIS_URL: redis://redis:6379
+      API_PORT: '3001'
+      JWT_SECRET: ${JWT_SECRET:?Set JWT_SECRET in .env}
+      FRONTEND_URL: ${PUBLIC_URL:-http://localhost:8080}
+      CLICKUP_API_TOKEN: ${CLICKUP_API_TOKEN:-}
+      CLICKUP_MOCK_MODE: ${CLICKUP_MOCK_MODE:-true}
+      SMTP_URL: ${SMTP_URL:-}
+      SMTP_PORT: ${SMTP_PORT:-}
+      SMTP_SECURE: ${SMTP_SECURE:-}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SCREENSHOT_ALLOWED_HOSTS: ${SCREENSHOT_ALLOWED_HOSTS:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  web:
+    image: ghcr.io/kasunrocz-softwares/qa-testflow-web:${QA_TESTFLOW_VERSION:-latest}
+    restart: unless-stopped
+    environment:
+      API_INTERNAL_URL: http://api:3001
+    depends_on:
+      - api
+
+  # One address for everything: /api and /socket.io go to the API, the rest to the web app.
+  # Set SITE_ADDRESS to your domain (e.g. qa.example.com) and HTTP_PORT=80 / HTTPS_PORT=443
+  # to get automatic HTTPS from Let's Encrypt.
+  proxy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - '${HTTP_PORT:-8080}:80'
+      - '${HTTPS_PORT:-8443}:443'
+    configs:
+      - source: caddyfile
+        target: /etc/caddy/Caddyfile
+    volumes:
+      - caddy_data:/data
+    depends_on:
+      - web
+      - api
+
+configs:
+  caddyfile:
+    content: |
+      ${SITE_ADDRESS:-:80} {
+        encode gzip
+        handle /api/* {
+          reverse_proxy api:3001
+        }
+        handle /socket.io/* {
+          reverse_proxy api:3001
+        }
+        handle {
+          reverse_proxy web:3000
+        }
+      }
+
+volumes:
+  postgres_data:
+  redis_data:
+  caddy_data:
