@@ -198,7 +198,27 @@ function start(THREE) {
     if (!w || !h) return;
     renderer.setSize(w, h, false);
     camera.aspect = w / h;
-    camera.position.z = w / h < 1 ? 15 : 11;
+    if (canvas.dataset.bleed != null) {
+      // Full-window canvas: frame the planet from the window's shape. Park it on the right and keep the whole
+      // body (data-radius, in scene units) in view at any size; only a faint ring may run off the screen edge.
+      const RAD = Number(canvas.dataset.radius) || 3, aspect = w / h;
+      const tanH = Math.tan(THREE.MathUtils.degToRad(camera.fov / 2));
+      let z, x, y = 0;
+      if (innerWidth > 1080) {
+        z = Math.max(11, RAD / (0.66 * tanH)); // body never taller than ~2/3 of the window
+        const halfW = z * tanH * aspect;
+        x = Math.max(0, Math.min(halfW - RAD, halfW * 0.46));
+      } else {
+        z = Math.max(11, (RAD * 2) / (tanH * aspect));
+        const halfW = z * tanH * aspect, halfH = z * tanH;
+        x = halfW - RAD * 1.1;
+        y = halfH * 0.3;
+      }
+      camera.position.z = z;
+      world.position.set(x, y, 0);
+    } else {
+      camera.position.z = w / h < 1 ? 15 : 11;
+    }
     camera.updateProjectionMatrix();
   };
   resize();
