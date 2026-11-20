@@ -1,5 +1,5 @@
 // KasunRocz Softwares — shared 3D hero planet for project sites.
-// Usage: <canvas class="kr-planet" data-kind="ring|waves|crystal|graph" data-color="#ffb547" aria-hidden="true"></canvas>
+// Usage: <canvas class="kr-planet" data-kind="ring|waves|crystal|graph|pages" data-color="#ffb547" aria-hidden="true"></canvas>
 // The page works without it: if WebGL or the CDN fails, the canvas simply stays empty.
 const canvas = document.querySelector('canvas.kr-planet');
 const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -161,6 +161,55 @@ function start(THREE) {
         p.sp.material.opacity = Math.sin(p.u * Math.PI) * .95;
       });
       alarms.forEach((gl) => { gl.material.opacity = .45 + .45 * Math.sin(t * 5); });
+    });
+  } else if (kind === 'pages') {
+    // Release documents: page cards orbit the core like a release history. In turn, the card at the
+    // front is published: it lights up, a stamp ripple spreads from it and a beam links it to the core.
+    world.add(orb(new THREE.IcosahedronGeometry(1.3, small ? 14 : 24)));
+    const pc = document.createElement('canvas'); pc.width = 128; pc.height = 164;
+    const px = pc.getContext('2d');
+    const box = (x, y, w, h, r) => { px.beginPath(); if (px.roundRect) px.roundRect(x, y, w, h, r); else px.rect(x, y, w, h); };
+    px.fillStyle = 'rgba(255,255,255,.14)'; box(4, 4, 120, 156, 12); px.fill();
+    px.strokeStyle = 'rgba(255,255,255,.95)'; px.lineWidth = 4; box(4, 4, 120, 156, 12); px.stroke();
+    px.fillStyle = 'rgba(255,255,255,.95)'; box(16, 18, 48, 14, 7); px.fill();
+    px.fillStyle = 'rgba(255,255,255,.55)';
+    [46, 62, 78, 94, 110].forEach((y, i) => { box(16, y, i % 2 ? 66 : 96, 7, 3.5); px.fill(); });
+    px.fillStyle = 'rgba(255,255,255,.9)'; px.beginPath(); px.arc(102, 138, 10, 0, Math.PI * 2); px.fill();
+    const pageTex = new THREE.CanvasTexture(pc);
+    const lineAdd = (col, opacity) => new THREE.LineBasicMaterial({ color: col, transparent: true, opacity, blending: THREE.AdditiveBlending, depthWrite: false });
+    const N = 9, R = 3.3;
+    const orbit = new THREE.Group(); orbit.rotation.set(.34, 0, -.14); world.add(orbit);
+    const track = []; for (let i = 0; i <= 160; i++) { const a = i / 160 * Math.PI * 2; track.push(new THREE.Vector3(Math.cos(a) * R, 0, Math.sin(a) * R)); }
+    orbit.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(track), lineAdd(color, .22)));
+    const cardGeo = new THREE.PlaneGeometry(.95, 1.22);
+    const cards = Array.from({ length: N }, (_, i) => {
+      const a = i / N * Math.PI * 2;
+      const m = new THREE.Mesh(cardGeo, additive(color, .5, { map: pageTex, side: THREE.DoubleSide }));
+      m.position.set(Math.cos(a) * R, 0, Math.sin(a) * R); m.rotation.y = Math.PI / 2 - a;
+      orbit.add(m); return m;
+    });
+    const ripple = new THREE.Mesh(new THREE.RingGeometry(.9, 1, 64), additive(light, 0, { side: THREE.DoubleSide }));
+    const stamp = glow(light, 1.6, 0);
+    const beamGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
+    const beam = new THREE.Line(beamGeo, lineAdd(light, 0)); orbit.add(beam);
+    dust(small ? 350 : 700, 4.7, 6.3, .34, light);
+    const P = 2.6, wp = new THREE.Vector3();
+    let cycle = -1, lit = cards[0];
+    updates.push((t) => {
+      orbit.rotation.y = t * .16;
+      const k = Math.floor(t / P), ph = (t % P) / P;
+      if (k !== cycle) {
+        cycle = k; let best = -Infinity;
+        // front-left card: the release card in the hero covers the front-right of the planet
+        cards.forEach((m) => { m.getWorldPosition(wp); const score = wp.z - (wp.x - world.position.x) * 1.4; if (score > best) { best = score; lit = m; } });
+        lit.add(ripple, stamp);
+        beamGeo.attributes.position.setXYZ(1, lit.position.x, lit.position.y, lit.position.z); beamGeo.attributes.position.needsUpdate = true;
+      }
+      const pulse = ph < .12 ? ph / .12 : Math.pow(1 - (ph - .12) / .88, 2);
+      cards.forEach((m) => { const on = m === lit ? pulse : 0; m.material.opacity = .42 + on * .55; m.scale.setScalar(1 + on * .16); });
+      ripple.scale.setScalar(.5 + ph * 1.05); ripple.material.opacity = (1 - ph) * .7;
+      stamp.material.opacity = pulse * .9;
+      beam.material.opacity = pulse * .6;
     });
   } else {
     const crystal = orb(new THREE.OctahedronGeometry(1.8, 0));
