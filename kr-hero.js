@@ -193,15 +193,16 @@ function start(THREE) {
     const beamGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(), new THREE.Vector3()]);
     const beam = new THREE.Line(beamGeo, lineAdd(light, 0)); orbit.add(beam);
     dust(small ? 350 : 700, 4.7, 6.3, .34, light);
-    const P = 2.6, wp = new THREE.Vector3();
+    const P = 2.6, wp = new THREE.Vector3(), cp = new THREE.Vector3();
     let cycle = -1, lit = cards[0];
     updates.push((t) => {
       orbit.rotation.y = t * .16;
       const k = Math.floor(t / P), ph = (t % P) / P;
       if (k !== cycle) {
         cycle = k; let best = -Infinity;
-        // front-left card: the release card in the hero covers the front-right of the planet
-        cards.forEach((m) => { m.getWorldPosition(wp); const score = wp.z - (wp.x - world.position.x) * 1.4; if (score > best) { best = score; lit = m; } });
+        // the front-left card, seen from the camera: it stays clear of the core and of the page's release card
+        orbit.getWorldPosition(cp).applyMatrix4(camera.matrixWorldInverse);
+        cards.forEach((m) => { m.getWorldPosition(wp).applyMatrix4(camera.matrixWorldInverse); const score = (wp.z - cp.z) - (wp.x - cp.x) * 1.4; if (score > best) { best = score; lit = m; } });
         lit.add(ripple, stamp);
         beamGeo.attributes.position.setXYZ(1, lit.position.x, lit.position.y, lit.position.z); beamGeo.attributes.position.needsUpdate = true;
       }
